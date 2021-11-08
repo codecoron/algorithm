@@ -1,9 +1,73 @@
 ## 十大排序
    排序   | 平均时间复杂度 | 最差时间复杂度 | 最好时间复杂度 |   其它    
  :------: | :------------: | :------------: | :------------: | :-------: 
+ 冒泡排序 | O(n^2)          | O(n^2)        | O(n^2)           | 稳定
  快速排序 |  O(n*log(n))   |     O(n^2)     |  O(n*log(n))   | 1. 不稳定 
 
+### 冒泡排序
+> [冒泡排序肯定都懂，但是你会优化吗](https://www.cnblogs.com/9dragon/p/10705097.html#:~:text=%E5%86%92%E6%B3%A1%E6%8E%92%E5%BA%8F%E5%8F%AF%E4%BB%A5%E9%80%9A%E8%BF%87,%E6%9D%82%E5%BA%A6%E4%B8%BAO%281%29%E3%80%82)
 
+#### **试想如果对一个升序用冒泡进行升序排序会怎么样**
+我想说，假如有一个序列已经是升序了，但是你不知道，然后你需要进行升序排序，并且使用的是冒泡。这样就会进行了许多无用功。这是一个最极端的例子。
+
+所以第一种优化方法就是，**如果一轮排序下来，没有发生交换，就说明已经有序了，不需要继续冒泡**
+
+```java
+private static void BubbleSortA(int[] nums) {
+        int length = nums.length;
+        //用于标识是否已经将序列排好序
+        boolean isOrdered = false;
+        for (int i = 0; i < length - 1; i++) {
+            //每一趟开始前都假设已经有序
+            System.out.println("执行" + (i + 1) + "轮");
+            isOrdered = true;
+            for (int j = 0; j < length - 1 - i; j++) {
+                if (nums[j] > nums[j + 1]) {
+                    int temp = nums[j];
+                    nums[j] = nums[j + 1];
+                    nums[j + 1] = temp;
+                    //如果出现有元素交换，则表明此躺可能没有完成排序
+                    isOrdered = false;
+                }
+            }
+            //如果当前趟都没有进行元素的交换，证明前面一趟比较已经排好序
+            //直接跳出循环
+            if (isOrdered) {
+                break;
+            }
+        }
+    }
+```
+
+#### **试想一下，如果数据是前半段无序，后半段有序**
+
+这种情况做了无用功的地方在于，在有序的序列里执行冒泡排序。所以我们可以用一个边界值来排除掉已经有序的了。
+
+```java
+boolean isOrdered = false;
+int lastExchangeIndex = 0;
+//当前趟无序的边界
+int unorderedBorder = length - 1;
+for (int i = 0; i < length - 1; i++) {
+    System.out.println("执行" + (i + 1) + "轮");
+    //每一趟开始前都假设已经有序
+    isOrdered = true;
+    for (int j = 0; j < unorderedBorder; j++) {
+        if (nums[j] > nums[j + 1]) {
+            int temp = nums[j];
+            nums[j] = nums[j + 1];
+            nums[j + 1] = temp;
+            //如果出现有元素交换，则表明此躺没有完成排序
+            isOrdered = false;
+            //记录下最后一次交换元素的位置
+            lastExchangeIndex = j;
+        }
+    }
+    unorderedBorder = lastExchangeIndex;
+    if (isOrdered) {
+        break;
+    }
+```
 
 ### 快速排序
 > 我觉得是升级版的冒泡排序 [快速排序例子](https://www.cnblogs.com/coderon/p/13407470.html)
